@@ -9,95 +9,12 @@ const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
 
 let selectedProducts = [];
-let conversation = [];
-
-
-// // Initial chatbot message
-// chatWindow.innerHTML =
-//   "<p><strong>L'Oréal Assistant:</strong> 👋 Hello! How can I help you today?</p>";
-
-// // Store conversation history
-// const messages = [
-//   {
-//     role: "system",
-//     content:
-//       "You are a helpful L'Oréal beauty assistant. Answer only questions about L'Oréal products, skincare, haircare, makeup, fragrances, beauty routines, and recommendations. Politely refuse unrelated questions."
-//   }
-// ];
-
-// /* Handle form submit */
-// chatForm.addEventListener("submit", async (e) => {
-//   e.preventDefault();
-
-//   // Get user's question
-//   const question = userInput.value.trim();
-
-//   if (!question) return;
-
-//   // Display user's question
-//   chatWindow.innerHTML += `
-//     <p><strong>You:</strong> ${question}</p>
-//   `;
-
-//   // Save user message
-//   messages.push({
-//     role: "user",
-//     content: question
-//   });
-
-//   // Clear input
-//   userInput.value = "";
-
-//   // Show thinking message
-//   chatWindow.innerHTML += `
-//     <p><strong>L'Oréal Assistant:</strong> Thinking...</p>
-//   `;
-
-//   try {
-//     // Send conversation to Cloudflare Worker
-//     const response = await fetch(workerURL, {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json"
-//       },
-//       body: JSON.stringify({
-//         messages: messages
-//       })
-//     });
-
-//     const data = await response.json();
-
-//     // Remove the "Thinking..." message
-//     chatWindow.lastElementChild.remove();
-
-//     // Get AI response
-//     const reply = data.choices[0].message.content;
-
-//     // Save AI response
-//     messages.push({
-//       role: "assistant",
-//       content: reply
-//     });
-
-//     // Display AI response
-//     chatWindow.innerHTML += `
-//       <p><strong>L'Oréal Assistant:</strong> ${reply}</p>
-//     `;
-
-//     // Scroll to newest message
-//     chatWindow.scrollTop = chatWindow.scrollHeight;
-
-//   } catch (error) {
-//     console.error(error);
-
-//     // Remove the "Thinking..." message
-//     chatWindow.lastElementChild.remove();
-
-//     chatWindow.innerHTML += `
-//       <p><strong>Error:</strong> Unable to contact the chatbot.</p>
-//     `;
-//   }
-// });
+let conversation = [
+  {
+    role: "system",
+    content: "You are a helpful L'Oréal beauty assistant. Answer only questions about L'Oréal products, skincare, haircare, makeup, fragrances, beauty routines, and recommendations. Politely refuse unrelated questions."
+  }
+];
 
 /* Show initial placeholder until user selects a category */
 productsContainer.innerHTML = `
@@ -109,6 +26,9 @@ productsContainer.innerHTML = `
 /* Load product data from JSON file */
 async function loadProducts() {
   const response = await fetch("products.json");
+    if (!response.ok) {
+    throw new Error("Server returned " + response.status);
+}   
   const data = await response.json();
   return data.products;
 }  
@@ -146,6 +66,8 @@ function displayProducts(products) {
 
     });
 
+}
+
 /* Filter and display products when category changes */
 categoryFilter.addEventListener("change", async (e) => {
   const products = await loadProducts();
@@ -158,28 +80,31 @@ categoryFilter.addEventListener("change", async (e) => {
   );
 
   displayProducts(filteredProducts);
+
+  if (selectedProducts.some(p => p.name === product.name)) {
+    card.classList.add("selected");
+}
 });
 
 /* Chat form submission handler - placeholder for OpenAI integration */
-chatForm.addEventListener("submit", (e) => {
-  chatForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  chatForm.addEventListener("submit",async(e)=>{
-
+chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const input=document.getElementById("userInput");
+    const question = userInput.value;
 
     const question=input.value;
 
-    conversation.push({
-
-        role:"user",
-
-        content:question
-
-    });
+    messages: [
+        {
+            role: "system",
+            content: "You are a L'Oréal beauty advisor."
+        },
+        {
+            role: "user",
+            content: `Create a skincare routine using only these products:
+    ${JSON.stringify(selectedProducts)}`
+        }
+    ]
 
     const response=await fetch(workerURL,{
 
@@ -218,7 +143,6 @@ chatForm.addEventListener("submit", (e) => {
 
     input.value="";
 
-});
 });
 
 function toggleProduct(product, card) {
@@ -363,63 +287,18 @@ generateRoutine.addEventListener("click", async ()=>{
 
     });
 
-    const data=await response.json();
+    if (!response.ok) {
+    throw new Error("Server error");
+}
 
-    conversation=data.messages;
+    const data = await response.json();
 
-    chatWindow.innerHTML=
+    conversation.push(data.choices[0].message);
 
-        data.choices[0].message.content;
-
-});
-
-    const response=await fetch(workerURL,{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-
-            messages:[
-
-                {
-
-                    role:"system",
-
-                    content:
-                    "You are a L'Oréal beauty advisor."
-
-                },
-
-                {
-
-                    role:"user",
-
-                    content:`
-                    Create a skincare routine using only these products:
-
-                    ${JSON.stringify(selectedProducts)}
-
-                    `
-
-                }
-
-            ]
-
-        })
-
-    });
-
-    const data=await response.json();
-
-    conversation=data.messages;
-
-    chatWindow.innerHTML=
-
-        data.choices[0].message.content;
+    chatWindow.innerHTML += `
+<p><b>Routine:</b></p>
+<p>${data.choices[0].message.content}</p>
+`;
 
 });
 
