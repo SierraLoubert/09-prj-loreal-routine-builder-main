@@ -7,6 +7,7 @@ const productsContainer = document.getElementById("productsContainer");
 const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
+const generateRoutine = document.getElementById("generateRoutine");
 
 let selectedProducts = [];
 let conversation = [
@@ -25,14 +26,15 @@ productsContainer.innerHTML = `
 
 /* Load product data from JSON file */
 async function loadProducts() {
-  const response = await fetch("products.json");
-    if (!response.ok) {
-    throw new Error("Server returned " + response.status);
-}   
-  const data = await response.json();
-  return data.products;
-}  
+    const response = await fetch("products.json");
 
+    if (!response.ok) {
+        throw new Error("Failed to load products");
+    }
+
+    const data = await response.json();
+    return data.products;
+};
 /* Create HTML for displaying product cards */
 function displayProducts(products) {
 
@@ -40,23 +42,17 @@ function displayProducts(products) {
 
     products.forEach(product => {
 
-        const card = document.createElement("div");
-        card.className = "product-card";
+    const card = document.createElement("div");
+    card.className = "product-card";
 
         card.innerHTML = `
-    <img src="${product.image}" alt="${product.name}">
-
-    <div class="product-info">
-        <h3>${product.name}</h3>
-
-        <p>${product.brand}</p>
-
-        <p class="description">
-            ${product.description}
-        </p>
-    </div>
+        <img src="${product.image}" alt="${product.name}">
+        <div class="product-info">
+            <h3>${product.name}</h3>
+            <p>${product.brand}</p>
+            <p class="description">${product.description}</p>
+        </div>
     `;
-          
 
         card.addEventListener("click", () => {
             toggleProduct(product, card);
@@ -80,10 +76,6 @@ categoryFilter.addEventListener("change", async (e) => {
   );
 
   displayProducts(filteredProducts);
-
-  if (selectedProducts.some(p => p.name === product.name)) {
-    card.classList.add("selected");
-}
 });
 
 /* Chat form submission handler - placeholder for OpenAI integration */
@@ -91,20 +83,6 @@ chatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const question = userInput.value;
-
-    const question=input.value;
-
-    messages: [
-        {
-            role: "system",
-            content: "You are a L'Oréal beauty advisor."
-        },
-        {
-            role: "user",
-            content: `Create a skincare routine using only these products:
-    ${JSON.stringify(selectedProducts)}`
-        }
-    ]
 
     const response=await fetch(workerURL,{
 
@@ -124,6 +102,9 @@ chatForm.addEventListener("submit", async (e) => {
 
     });
 
+    if (!response.ok) {
+    throw new Error("Server error");
+}
     const data=await response.json();
 
     conversation.push(
@@ -141,7 +122,7 @@ chatForm.addEventListener("submit", async (e) => {
 
     `;
 
-    input.value="";
+    userInput.value = "";
 
 });
 
@@ -237,69 +218,46 @@ function loadSavedProducts(){
 
 loadSavedProducts();
 
-generateRoutine.addEventListener("click", async ()=>{
+generateRoutine.addEventListener("click", async () => {
 
-    if(selectedProducts.length===0){
-
+    if (selectedProducts.length === 0) {
         alert("Select products first");
-
         return;
-
     }
 
-    const response=await fetch(workerURL,{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
+    const response = await fetch(workerURL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
         },
-
-        body:JSON.stringify({
-
-            messages:[
-
+        body: JSON.stringify({
+            messages: [
                 {
-
-                    role:"system",
-
-                    content:
-                    "You are a L'Oréal beauty advisor."
-
+                    role: "system",
+                    content: "You are a L'Oréal beauty advisor."
                 },
-
                 {
+                    role: "user",
+                    content: `Create a skincare routine using only these products:
 
-                    role:"user",
-
-                    content:`
-                    Create a skincare routine using only these products:
-
-                    ${JSON.stringify(selectedProducts)}
-
-                    `
-
+${JSON.stringify(selectedProducts)}`
                 }
-
             ]
-
         })
-
     });
 
     if (!response.ok) {
-    throw new Error("Server error");
-}
+        throw new Error("Server error");
+    }
 
     const data = await response.json();
 
     conversation.push(data.choices[0].message);
 
     chatWindow.innerHTML += `
-<p><b>Routine:</b></p>
-<p>${data.choices[0].message.content}</p>
-`;
-
+        <p><b>Routine:</b></p>
+        <p>${data.choices[0].message.content}</p>
+    `;
 });
 
 
