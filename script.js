@@ -8,6 +8,8 @@ const chatForm = document.getElementById("chatForm");
 const userInput = document.getElementById("userInput");
 const chatWindow = document.getElementById("chatWindow");
 const generateRoutine = document.getElementById("generateRoutine");
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    const clearProducts = document.getElementById("clearProducts");
 const productSearch = document.getElementById("productSearch");
 
 let allProducts = [];
@@ -43,6 +45,7 @@ async function loadProducts() {
     }
 
     const data = await response.json();
+    console.log(data);
     return data.products;
 };
 /* Create HTML for displaying product cards */
@@ -285,13 +288,9 @@ generateRoutine.addEventListener("click", async () => {
         <p><b>Routine:</b></p>
         <p>${data.choices[0].message.content}</p>
     `;
-    
-    chatWindow.scrollTop = chatWindow.scrollHeight;
 
-    const clearProducts = document.getElementById("clearProducts");
-
-    });
-
+      });
+      
     clearProducts.addEventListener("click", () => {
 
         selectedProducts = [];
