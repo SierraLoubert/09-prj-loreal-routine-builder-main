@@ -162,6 +162,20 @@ body {
     align-items: center;
 }
 
+#selectedProductsList button {
+      background: none;
+      border: none;
+      color: #d32f2f;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: .1px;
+  }
+
+  #selectedProductsList button:hover {
+      color: #a00000;
+  }
+   
 /* Clear All button */
 #clearProducts {
     width: 120px;

@@ -11,6 +11,8 @@ const generateRoutine = document.getElementById("generateRoutine");
     chatWindow.scrollTop = chatWindow.scrollHeight;
     const clearProducts = document.getElementById("clearProducts");
 const productSearch = document.getElementById("productSearch");
+const removeButton = document.createElement("button");
+removeButton.textContent = "✕";
 
 let allProducts = [];
 let selectedProducts = [];
