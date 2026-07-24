@@ -170,7 +170,7 @@ function updateSelectedProducts(){
         item.innerHTML=`
             ${product.name}
             <button data-name="${product.name}">
-                Remove
+                &times;
             </button>
         `;
 

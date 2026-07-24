@@ -355,6 +355,20 @@ body {
   gap: 10px;
 }
 
+#selectedProductsList button {
+    background: none;
+    border: none;
+    color: #d32f2f;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+#selectedProductsList button:hover {
+    color: #a00000;
+}
+
 /* Generate Button */
 .generate-btn {
   display: inline-flex;
