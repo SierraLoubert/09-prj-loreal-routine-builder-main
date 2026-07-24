@@ -84,6 +84,11 @@ chatForm.addEventListener("submit", async (e) => {
 
     const question = userInput.value;
 
+    conversation.push({
+    role: "user",
+    content: question
+    });
+
     const response=await fetch(workerURL,{
 
         method:"POST",
